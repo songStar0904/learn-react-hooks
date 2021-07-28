@@ -1,5 +1,4 @@
-import { count } from 'console';
-import React, { useState } from 'react';
+import React, { memo, useState, useMemo, useCallback } from 'react';
 
 /**
  * 每一次渲染都有它自己的 Props 和 State
@@ -67,12 +66,43 @@ const Count3: React.FC = () => {
   );
 };
 
+interface ISubCount4 {
+  count: number;
+  onClick: () => void;
+}
+
+let SubCount4: React.FC<ISubCount4> = ({ count, onClick }) => {
+  console.log('sub count4');
+  return <button onClick={onClick}>{count}</button>;
+};
+SubCount4 = memo(SubCount4);
+const Count4: React.FC = () => {
+  const [count, setCount] = useState(0);
+  // 父组件更新时，这里的变量和函数每次都会重新创建，那么子组件接受到的属性每次都会认为是新的
+  // 所以子组件也会随之更新，这时候可以用到 useMemo
+  // 有没有后面的依赖项数组很重要，否则还是会重新渲染
+  // 如果后面的依赖项数组没有值的话，即使父组件的 count 值改变了，子组件也不会去更新
+  const data = useMemo(() => count, []);
+  // const data = useMemo(() => count, [count]);
+  const addCount = useCallback(() => {
+    setCount(count + 1);
+  }, [count]);
+  return (
+    <>
+      <p>{count}</p>
+      <button onClick={addCount}>+</button>
+      <SubCount4 count={data} onClick={addCount}></SubCount4>
+    </>
+  );
+};
+
 const Demo1: React.FC = () => {
   return (
     <>
       <Count1></Count1>
       <Count2></Count2>
       <Count3></Count3>
+      <Count4></Count4>
     </>
   );
 };
