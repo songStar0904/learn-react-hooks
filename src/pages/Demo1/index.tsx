@@ -85,10 +85,12 @@ const Count4: React.FC = () => {
   const data = useMemo(() => count, []);
   // const data = useMemo(() => count, [count]);
   const addCount = useCallback(() => {
-    setCount(count + 1);
-  }, [count]);
+    // 这里只在初始化创建一次，所以要用count => count + 1 来更新count，否则每次都是一样的。
+    setCount(count => count + 1);
+  }, []);
   return (
     <>
+      <h2>性能优化</h2>
       <p>{count}</p>
       <button onClick={addCount}>+</button>
       <SubCount4 count={data} onClick={addCount}></SubCount4>
